@@ -32,7 +32,10 @@ export const App = () => {
       };
       document.documentElement.onkeydown = (event: KeyboardEvent) => {
         if (event.key === "Enter") {
-          setDots(dots);
+          if (dots.length > 1) {
+            setDots(dots);
+          }
+          setToolType("");
         }
       };
     }
