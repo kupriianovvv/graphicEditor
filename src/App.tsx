@@ -6,35 +6,37 @@ export const App = () => {
   const [dots, setDots] = useState<Dot[]>([]);
   const [toolType, setToolType] = useState<ToolType>("");
 
+  const isBeginning = dots.length === 1;
+  const lastDotIndex = dots.length - 1;
+
   const onClick = () => {
     setToolType("line");
   };
 
   useEffect(() => {
-    if (dots.length === 0 || dots.length === 1) return;
+    if (dots.length === 0) return;
     const canvas = document.getElementById("canvas") as HTMLCanvasElement;
     const ctx = canvas.getContext("2d")!;
-    ctx.beginPath();
-    ctx.moveTo(dots[0].x, dots[0].y);
-    for (let i = 1; i < dots.length; i++) {
-      ctx.lineTo(dots[i].x, dots[i].y);
+    if (isBeginning) {
+      ctx.beginPath();
+      ctx.moveTo(dots[0].x, dots[0].y);
+      return;
     }
+    console.log(dots[lastDotIndex]);
+    ctx.lineTo(dots[lastDotIndex].x, dots[lastDotIndex].y);
     ctx.stroke();
-  }, [dots]);
+  }, [dots, lastDotIndex, isBeginning]);
+
   useEffect(() => {
     if (toolType === "line") {
       const dots: Dot[] = [];
       document.documentElement.onclick = (event: MouseEvent) => {
         if (event.target instanceof HTMLButtonElement) return;
-        console.log("clicked!");
         dots.push({ x: event.x, y: event.y });
-        console.log(dots);
+        setDots([...dots]);
       };
       document.documentElement.onkeydown = (event: KeyboardEvent) => {
         if (event.key === "Enter") {
-          if (dots.length > 1) {
-            setDots(dots);
-          }
           setToolType("");
         }
       };
