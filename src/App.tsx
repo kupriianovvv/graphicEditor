@@ -22,8 +22,11 @@ export const App = () => {
       ctx.moveTo(dots[0].x, dots[0].y);
       return;
     }
-    console.log(dots[lastDotIndex]);
-    ctx.lineTo(dots[lastDotIndex].x, dots[lastDotIndex].y);
+    const startDot = dots[lastDotIndex - 1];
+    const endDot = dots[lastDotIndex];
+    ctx.beginPath();
+    ctx.moveTo(startDot.x, startDot.y);
+    ctx.lineTo(endDot.x, endDot.y);
     ctx.stroke();
   }, [dots, lastDotIndex, isBeginning]);
 
