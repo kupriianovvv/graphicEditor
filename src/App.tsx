@@ -4,7 +4,7 @@ export const App = () => {
   type ToolType = "line" | "arrow" | "";
   type Dot = { x: number; y: number };
   const [dots, setDots] = useState<Dot[]>([]);
-  const [tempDots, setTempDots] = useState<Dot[]>([]);
+  const [tempDot, setTempDot] = useState<Dot>();
   const [toolType, setToolType] = useState<ToolType>("");
   const [status, setStatus] = useState<"start" | "started" | "">("");
 
@@ -20,7 +20,6 @@ export const App = () => {
           if (event.target instanceof HTMLButtonElement) return;
           setDots((prevDots) => {
             const newDots = prevDots.concat([{ x: event.x, y: event.y }]);
-            setTempDots(newDots);
             return newDots;
           });
           setStatus("started");
@@ -28,33 +27,30 @@ export const App = () => {
         };
       }
       if (status === "started") {
-        const currLength = dots.length;
         document.documentElement.onmousemove = (event: MouseEvent) => {
-          setTempDots((prevDots) => {
-            const newDots = [...prevDots];
-            newDots[currLength] = { x: event.x, y: event.y };
-            return newDots;
-          });
+          setTempDot({ x: event.x, y: event.y });
         };
       }
     }
   }, [toolType, dots, status]);
 
   useEffect(() => {
-    if (tempDots.length <= 1) return;
+    if (dots.length < 1) return;
     const canvas = document.getElementById("canvas") as HTMLCanvasElement;
     const ctx = canvas.getContext("2d")!;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     ctx.beginPath();
-    ctx.moveTo(tempDots[0].x, tempDots[0].y);
-    for (let i = 1; i < tempDots.length; i++) {
-      const dot = tempDots[i];
+    ctx.moveTo(dots[0].x, dots[0].y);
+    for (let i = 1; i < dots.length; i++) {
+      const dot = dots[i];
       ctx.lineTo(dot.x, dot.y);
       ctx.stroke();
     }
-  }, [tempDots]);
+    ctx.lineTo(tempDot?.x, tempDot?.y);
+    ctx.stroke();
+  }, [dots, tempDot]);
   return (
     <main>
       <canvas
