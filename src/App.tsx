@@ -4,51 +4,55 @@ export const App = () => {
   type ToolType = "line" | "arrow" | "";
   type Dot = { x: number; y: number };
   const [dots, setDots] = useState<Dot[]>([]);
+  const [tempDots, setTempDots] = useState<Dot[]>([]);
   const [toolType, setToolType] = useState<ToolType>("");
-
-  const isBeginning = dots.length === 1;
-  const lastDotIndex = dots.length - 1;
+  const [status, setStatus] = useState<"start" | "started" | "">("");
 
   const onClick = () => {
     setToolType("line");
+    setStatus("start");
   };
 
   useEffect(() => {
-    if (dots.length === 0) return;
-    const canvas = document.getElementById("canvas") as HTMLCanvasElement;
-    const ctx = canvas.getContext("2d")!;
-    if (isBeginning) {
-      ctx.beginPath();
-      ctx.moveTo(dots[0].x, dots[0].y);
-      return;
+    if (toolType === "line") {
+      if (status === "start") {
+        document.documentElement.onclick = (event: MouseEvent) => {
+          if (event.target instanceof HTMLButtonElement) return;
+          setDots([{ x: event.x, y: event.y }]);
+          setTempDots([{ x: event.x, y: event.y }]);
+          setStatus("started");
+          document.documentElement.onclick = null;
+          console.log("click");
+        };
+      }
+      if (status === "started") {
+        const currLength = dots.length;
+        document.documentElement.onmousemove = (event: MouseEvent) => {
+          setTempDots((prevDots) => {
+            const newDots = [...prevDots];
+            newDots[currLength] = { x: event.x, y: event.y };
+            return newDots;
+          });
+        };
+      }
     }
-    const startDot = dots[lastDotIndex - 1];
-    const endDot = dots[lastDotIndex];
-    ctx.beginPath();
-    ctx.moveTo(startDot.x, startDot.y);
-    ctx.lineTo(endDot.x, endDot.y);
-    ctx.stroke();
-  }, [dots, lastDotIndex, isBeginning]);
+  }, [toolType, dots, status]);
 
   useEffect(() => {
-    if (toolType === "line") {
-      const dots: Dot[] = [];
-      document.documentElement.onclick = (event: MouseEvent) => {
-        if (event.target instanceof HTMLButtonElement) return;
-        dots.push({ x: event.x, y: event.y });
-        setDots([...dots]);
-      };
-      document.documentElement.onkeydown = (event: KeyboardEvent) => {
-        if (event.key === "Enter") {
-          setToolType("");
-        }
-      };
-    }
+    if (tempDots.length <= 1) return;
+    const canvas = document.getElementById("canvas") as HTMLCanvasElement;
+    const ctx = canvas.getContext("2d")!;
 
-    return () => {
-      document.documentElement.onclick = null;
-    };
-  }, [toolType]);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.beginPath();
+    ctx.moveTo(tempDots[0].x, tempDots[0].y);
+    for (let i = 1; i < tempDots.length; i++) {
+      const dot = tempDots[i];
+      ctx.lineTo(dot.x, dot.y);
+      ctx.stroke();
+    }
+  }, [tempDots]);
   return (
     <main>
       <canvas
