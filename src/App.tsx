@@ -46,7 +46,6 @@ export const App = () => {
     for (let i = 1; i < dots.length; i++) {
       const dot = dots[i];
       ctx.lineTo(dot.x, dot.y);
-      ctx.stroke();
     }
     ctx.lineTo(tempDot?.x, tempDot?.y);
     ctx.stroke();
