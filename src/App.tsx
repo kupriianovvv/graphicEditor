@@ -18,10 +18,12 @@ export const App = () => {
       if (status === "start") {
         document.documentElement.onclick = (event: MouseEvent) => {
           if (event.target instanceof HTMLButtonElement) return;
-          setDots([{ x: event.x, y: event.y }]);
-          setTempDots([{ x: event.x, y: event.y }]);
+          setDots((prevDots) => {
+            const newDots = prevDots.concat([{ x: event.x, y: event.y }]);
+            setTempDots(newDots);
+            return newDots;
+          });
           setStatus("started");
-          document.documentElement.onclick = null;
           console.log("click");
         };
       }
