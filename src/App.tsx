@@ -9,11 +9,12 @@ export const App = () => {
   const [toolType, setToolType] = useState<ToolType>("");
   const [status, setStatus] = useState<"start" | "started" | "">("");
 
-  console.log(dots, globalDots);
   const onClick = () => {
     setToolType("line");
     setStatus("start");
   };
+
+  console.log(globalDots);
 
   useEffect(() => {
     if (toolType === "line") {
@@ -24,7 +25,6 @@ export const App = () => {
             const newDots = (prevDots ?? []).concat([
               { x: event.x, y: event.y },
             ]);
-            console.log({ newDots });
             return newDots;
           });
           setStatus("started");
@@ -47,7 +47,7 @@ export const App = () => {
 
   useEffect(() => {
     if (status === "finished") {
-      setGlobalDots(dots);
+      setGlobalDots((prevGlobal) => prevGlobal.concat(dots));
       setTempDot(null);
       setDots(null);
       setStatus("");
@@ -58,22 +58,32 @@ export const App = () => {
     const canvas = document.getElementById("canvas") as HTMLCanvasElement;
     const ctx = canvas.getContext("2d")!;
 
-    const allDots = globalDots.concat(dots ?? []);
-    if (allDots.length < 1) return;
-
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.beginPath();
-    ctx.moveTo(allDots[0].x, allDots[0].y);
-    for (let i = 1; i < allDots.length; i++) {
-      const dot = allDots[i];
-      ctx.lineTo(dot.x, dot.y);
+    console.log({ globalDots, dots });
+    if (globalDots?.length) {
+      ctx.beginPath();
+      ctx.moveTo(globalDots[0].x, globalDots[0].y);
+      for (let i = 1; i < globalDots.length; i++) {
+        const dot = globalDots[i];
+        ctx.lineTo(dot.x, dot.y);
+      }
+      ctx.stroke();
+    }
+    if (dots?.length) {
+      ctx.beginPath();
+      ctx.moveTo(dots[0].x, dots[0].y);
+      for (let i = 1; i < dots.length; i++) {
+        const dot = dots[i];
+        ctx.lineTo(dot.x, dot.y);
+      }
     }
     if (tempDot) {
       ctx.lineTo(tempDot?.x, tempDot?.y);
     }
     ctx.stroke();
   }, [dots, tempDot, globalDots]);
+
   return (
     <main>
       <canvas
