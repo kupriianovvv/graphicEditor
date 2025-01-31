@@ -7,7 +7,6 @@ export const App = () => {
   const [tempDot, setTempDot] = useState<Dot>();
   const [toolType, setToolType] = useState<ToolType>("");
   const [status, setStatus] = useState<"start" | "started" | "">("");
-
   const onClick = () => {
     setToolType("line");
     setStatus("start");
@@ -23,7 +22,6 @@ export const App = () => {
             return newDots;
           });
           setStatus("started");
-          console.log("click");
         };
       }
       if (status === "started") {
@@ -32,7 +30,7 @@ export const App = () => {
         };
       }
     }
-  }, [toolType, dots, status]);
+  }, [toolType, status]);
 
   useEffect(() => {
     if (dots.length < 1) return;
